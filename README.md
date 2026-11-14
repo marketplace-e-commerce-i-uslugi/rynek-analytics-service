@@ -2,12 +2,18 @@
 
 `analytics-service` — statystyki sprzedawcy
 
-> Status: **szkielet**. Wszystkie endpointy z tabeli istnieją w kontrolerach (`src/main/java/.../api/`) i zwracają `501 Not Implemented` (RFC 7807). Ciała żądań to puste rekordy w `api/dto/`.
+> Status: **działa** (PostgreSQL, Flyway, JWT z JWKS, bez Kafki). Zdarzenia klienta zapisuje sam, sprzedaż czyta z order-service i booking-service (`GET /internal/analytics/sales`), kanał i tytuł oferty z catalog (`/internal/offers/{id}/channel`).
+
+- **Zdarzenia** (`POST /analytics/events`, pub, do 50 w żądaniu, 204): `OFFER_IMPRESSION` (oferta pojawiła się na liście, kafel widoczny w połowie), `OFFER_VIEW` (otwarta karta), `VIDEO_PLAY` (film pokazany: w Shortach i w galerii oferty), `ADD_TO_CART`, `BUY_NOW_CLICK`. Zdarzenia o nieistniejących ofertach są odrzucane po cichu, czas klienta poza [-1 dzień, +5 min] zastępuje czas serwera. Frontend zbiera zdarzenia i wysyła paczką co ~2 s (`core/analytics/event-tracker.ts`), a wyświetlenie kafla i film liczy raz na ofertę w sesji strony.
+- **Okres** `range`: `7d`, `30d` (domyślnie), `quarter` (91 dni); dni w strefie Europe/Warsaw, do dziś włącznie, porównanie z poprzednim okresem o tej samej długości (zmiana w %: od zera do czegokolwiek +100, zero do zera 0). Wykres ma słupek na dzień, a dla `quarter` na tydzień.
+- **Miary:** `views` = `OFFER_IMPRESSION`, `videoViews` = `VIDEO_PLAY`, `orders` i `revenue` = sprzedaż: zamówienia opłacone i nieanulowane (chwila wejścia w „Do wysłania”, wartość towarów bez dostawy) oraz usługi oznaczone jako wykonane (termin usługi, cena). Przychód w KPI w złotych (`money` w groszach), na wykresie w złotych.
+- **Najlepsze oferty:** do 5 według wyświetleń w okresie. **Lejek oferty** obejmuje ostatnie 90 dni: wyświetlenia → karta → koszyk (`ADD_TO_CART` + `BUY_NOW_CLICK`) → zakup (zamówienia i wykonane usługi z tą ofertą). Cudza albo nieistniejąca oferta daje 404.
+- **Bez:** limitów zapytań po stronie zdarzeń (poza limitem gatewaya), retencji (zdarzenia rosną bez końca), statystyk filmów z TikToka (liczymy odtworzenia w Rynku) i usług jeszcze niewykonanych w przychodzie. Gdy order albo booking nie odpowiada, przegląd, przychód i lejek dają 503 (liczby bez niego byłyby mylące), a wyświetlenia i najlepsze oferty działają.
 
 ## Uruchomienie
 
 ```bash
-./mvnw spring-boot:run   # port 8096, zmienna PORT
+./mvnw spring-boot:run   # port 8096, zmienna PORT; baza `analytics` z rynek-infra/local
 ./mvnw verify            # testy
 ```
 

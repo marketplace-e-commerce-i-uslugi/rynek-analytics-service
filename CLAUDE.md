@@ -2,7 +2,7 @@
 
 Mikroserwis platformy **Rynek**: `analytics-service` — statystyki sprzedawcy
 
-Zakres, endpointy i zdarzenia są opisane w `README.md`. Na razie to szkielet: endpointy zwracają 501, DTO są puste. Nie dodawaj logiki bez wyraźnej prośby.
+Zakres, endpointy i zdarzenia są opisane w `README.md`. Wszystkie endpointy działają (zdarzenia klienta we własnej bazie, sprzedaż z order i booking przez REST). Nie dodawaj Kafki bez wyraźnej prośby.
 
 ## Wspólne konwencje API (§1 dokumentu architektury)
 
@@ -35,6 +35,6 @@ Legenda kolumny **Dostęp**: `pub` = bez logowania, `user` = zalogowany, `seller
 
 ## Struktura kodu
 
-- `pl.rynek.analytics.api`: kontrolery REST (pełne ścieżki w adnotacjach), `api.dto`: rekordy żądań, `common.NotImplemented`: odpowiedź 501
+- `pl.rynek.analytics.api`: kontrolery REST (pełne ścieżki w adnotacjach); `events`: odbiór i zapis zdarzeń (`EventService`, pamięć podręczna ofert); `stats`: `StatsService` (okresy, KPI, wykres, lejek) i `StatsDtos`; `clients`: channel, catalog, sprzedaż (order i booking); `config`: Spring Security (JWT z JWKS), `Viewer`, błędy RFC 7807
 - Konfiguracja: `src/main/resources/application.yml`
 - Port lokalny: 8096

@@ -4,6 +4,36 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+  datasource:
+    # Lokalnie: rynek-infra/local (docker compose). Inne środowiska ustawiają zmienne.
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/analytics}
+    username: ${DB_USER:analytics}
+    password: ${DB_PASSWORD:analytics}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+rynek:
+  # Statystyki składamy bez Kafki: zdarzenia klienta zapisujemy sami, sprzedaż czytamy z order i booking, kanał i tytuł oferty z catalog.
+  channel:
+    url: ${CHANNEL_SERVICE_URL:http://localhost:8082}
+  catalog:
+    url: ${CATALOG_SERVICE_URL:http://localhost:8083}
+  order:
+    url: ${ORDER_SERVICE_URL:http://localhost:8091}
+  booking:
+    url: ${BOOKING_SERVICE_URL:http://localhost:8093}
+  jwt:
+    jwk-set-uri: ${IDENTITY_SERVICE_URL:http://localhost:8081}/internal/auth/jwks
+    issuer: ${JWT_ISSUER:rynek-identity}
+  analytics:
+    # Najlepsze oferty: tyle pozycji.
+    top-offers: 5
+    # Lejek oferty obejmuje tyle ostatnich dni.
+    funnel-days: 90
+    # Jak długo pamiętamy kanał i tytuł oferty pobrane z catalog.
+    offer-cache-ttl: 10m
 
 server:
   port: ${PORT:8096}
