@@ -159,7 +159,7 @@ public class StatsService {
             case "views" -> "Wyświetlenia";
             case "videoViews" -> "Obejrzenia filmów";
             case "orders" -> "Zamówienia";
-            case "revenue" -> "Przychód";
+            case "revenue" -> "Przychód (towary)";
             default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nieznana miara. Wybierz views, videoViews, orders albo revenue.");
         };
     }
